@@ -41,4 +41,22 @@ public class AccountService {
         }
         return null;
     }
+
+    // Additional method to transfer money between accounts
+    public void transfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+        Account fromAccount = getAccount(fromAccountId);
+        Account toAccount = getAccount(toAccountId);
+        if (fromAccount == null || toAccount == null) {
+            throw new IllegalArgumentException("One of the accounts does not exist");
+        }
+
+        if (fromAccount.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient funds in the source account");
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+        toAccount.setBalance(toAccount.getBalance().add(amount));
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+    }
 }
