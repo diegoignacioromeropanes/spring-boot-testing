@@ -11,8 +11,8 @@ public class BankService {
     @Autowired
     BankRepository bankRepository;
 
-    public Bank createBank(Long id, String name, int transferTotal) {
-        Bank bank = new Bank(id, name, transferTotal);
+    public Bank createBank(String name, int transferTotal) {
+        Bank bank = new Bank(name, transferTotal);
         return bankRepository.save(bank);
     }
 

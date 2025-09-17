@@ -17,8 +17,7 @@ public class Bank {
     public Bank() {
     }
 
-    public Bank(Long id, String name, int transfersTotal) {
-        this.id = id;
+    public Bank(String name, int transfersTotal) {
         this.name = name;
         this.transfersTotal = transfersTotal;
     }

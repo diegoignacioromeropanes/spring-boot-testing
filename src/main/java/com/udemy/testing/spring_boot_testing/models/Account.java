@@ -17,8 +17,7 @@ public class Account {
     public Account() {
     }
 
-    public Account(Long id, String person, BigDecimal balance) {
-        this.id = id;
+    public Account(String person, BigDecimal balance) {
         this.person = person;
         this.balance = balance;
     }

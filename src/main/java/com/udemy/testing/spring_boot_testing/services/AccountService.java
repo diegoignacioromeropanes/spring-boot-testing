@@ -12,8 +12,8 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
 
-    public Account createAccount(Long id, String person, BigDecimal balance) {
-        Account account = new Account(id, person, balance);
+    public Account createAccount(String person, BigDecimal balance) {
+        Account account = new Account(person, balance);
         return accountRepository.save(account);
     }
 

@@ -23,7 +23,7 @@ public class BankController {
 
     @PostMapping
     public ResponseEntity<Bank> createBank(@RequestBody Bank bank) {
-        Bank created = bankService.createBank(bank.getId(), bank.getName(), bank.getTransfersTotal());
+        Bank created = bankService.createBank(bank.getName(), bank.getTransfersTotal());
         return ResponseEntity.ok(created);
     }
 
