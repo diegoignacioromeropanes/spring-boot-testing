@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service
 public class BankService {
     @Autowired
-    private BankRepository bankRepository;
+    BankRepository bankRepository;
 
     public Bank createBank(Long id, String name, int transferTotal) {
         Bank bank = new Bank(id, name, transferTotal);

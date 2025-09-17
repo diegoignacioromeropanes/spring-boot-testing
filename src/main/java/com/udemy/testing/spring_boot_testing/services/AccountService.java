@@ -10,7 +10,7 @@ import java.util.Optional;
 @Service
 public class AccountService {
     @Autowired
-    private AccountRepository accountRepository;
+    AccountRepository accountRepository;
 
     public Account createAccount(Long id, String person, BigDecimal balance) {
         Account account = new Account(id, person, balance);
@@ -56,6 +56,7 @@ public class AccountService {
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
         toAccount.setBalance(toAccount.getBalance().add(amount));
+
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
     }
