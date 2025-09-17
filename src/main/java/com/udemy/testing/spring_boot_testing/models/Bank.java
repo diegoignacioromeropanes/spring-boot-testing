@@ -1,22 +1,26 @@
 package com.udemy.testing.spring_boot_testing.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "banks")
 public class Bank {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
-    private int transferTotal;
+
+    @Column(name = "transfers_total")
+    private int transfersTotal;
 
     public Bank() {
     }
 
-    public Bank(Long id, String name, int transferTotal) {
+    public Bank(Long id, String name, int transfersTotal) {
         this.id = id;
         this.name = name;
-        this.transferTotal = transferTotal;
+        this.transfersTotal = transfersTotal;
     }
 
     public Long getId() {
@@ -35,11 +39,11 @@ public class Bank {
         this.name = name;
     }
 
-    public int getTransferTotal() {
-        return transferTotal;
+    public int getTransfersTotal() {
+        return transfersTotal;
     }
 
-    public void setTransferTotal(int transferTotal) {
-        this.transferTotal = transferTotal;
+    public void setTransfersTotal(int transfersTotal) {
+        this.transfersTotal = transfersTotal;
     }
 }

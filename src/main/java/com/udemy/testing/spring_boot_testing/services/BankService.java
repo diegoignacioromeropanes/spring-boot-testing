@@ -26,7 +26,7 @@ public class BankService {
         if (optionalBank.isPresent()) {
             Bank bank = optionalBank.get();
             bank.setName(name);
-            bank.setTransferTotal(transferTotal);
+            bank.setTransfersTotal(transferTotal);
             return bankRepository.save(bank);
         }
         return null;

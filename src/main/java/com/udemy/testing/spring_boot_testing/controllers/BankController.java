@@ -23,13 +23,13 @@ public class BankController {
 
     @PostMapping
     public ResponseEntity<Bank> createBank(@RequestBody Bank bank) {
-        Bank created = bankService.createBank(bank.getId(), bank.getName(), bank.getTransferTotal());
+        Bank created = bankService.createBank(bank.getId(), bank.getName(), bank.getTransfersTotal());
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Bank> updateBank(@PathVariable Long id, @RequestBody Bank bank) {
-        Bank updated = bankService.updateBank(id, bank.getName(), bank.getTransferTotal());
+        Bank updated = bankService.updateBank(id, bank.getName(), bank.getTransfersTotal());
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }

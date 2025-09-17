@@ -1,10 +1,8 @@
 package com.udemy.testing.spring_boot_testing.repositories;
 
 import com.udemy.testing.spring_boot_testing.models.Bank;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface BankRepository extends CrudRepository<Bank, Long> {
+public interface BankRepository extends JpaRepository<Bank, Long> {
 }
 
