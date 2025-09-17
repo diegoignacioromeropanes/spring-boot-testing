@@ -14,35 +14,27 @@ public class BankController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Bank> getBank(@PathVariable Long id) {
-        Bank bank = bankService.getBank(id);
-        if (bank == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(bank);
+        return bankService.getBank(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Bank> createBank(@RequestBody Bank bank) {
-        Bank created = bankService.createBank(bank.getName(), bank.getTransfersTotal());
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(bankService.createBank(bank.getName(), bank.getTransfersTotal()).orElse(null));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Bank> updateBank(@PathVariable Long id, @RequestBody Bank bank) {
-        Bank updated = bankService.updateBank(id, bank.getName(), bank.getTransfersTotal());
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updated);
+        return bankService.updateBank(id, bank.getName(), bank.getTransfersTotal())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Bank> deleteBank(@PathVariable Long id) {
-        Bank deleted = bankService.deleteBank(id);
-        if (deleted == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(deleted);
+        return bankService.deleteBank(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
-

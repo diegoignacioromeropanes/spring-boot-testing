@@ -5,7 +5,6 @@ import com.udemy.testing.spring_boot_testing.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/accounts")
@@ -15,35 +14,27 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccount(@PathVariable Long id) {
-        Account account = accountService.getAccount(id);
-        if (account == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(account);
+        return accountService.getAccount(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Account> createAccount(@RequestBody Account account) {
-        Account created = accountService.createAccount(account.getPerson(), account.getBalance());
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(accountService.createAccount(account.getPerson(), account.getBalance()).orElse(null));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
-        Account updated = accountService.updateAccount(id, account.getPerson(), account.getBalance());
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updated);
+        return accountService.updateAccount(id, account.getPerson(), account.getBalance())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Account> deleteAccount(@PathVariable Long id) {
-        Account deleted = accountService.deleteAccount(id);
-        if (deleted == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(deleted);
+        return accountService.deleteAccount(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
-

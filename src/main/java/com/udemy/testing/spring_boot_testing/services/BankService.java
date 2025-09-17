@@ -11,33 +11,32 @@ public class BankService {
     @Autowired
     BankRepository bankRepository;
 
-    public Bank createBank(String name, int transferTotal) {
+    public Optional<Bank> createBank(String name, int transferTotal) {
         Bank bank = new Bank(name, transferTotal);
-        return bankRepository.save(bank);
+        return Optional.of(bankRepository.save(bank));
     }
 
-    public Bank getBank(Long id) {
-        Optional<Bank> bank = bankRepository.findById(id);
-        return bank.orElse(null);
+    public Optional<Bank> getBank(Long id) {
+        return bankRepository.findById(id);
     }
 
-    public Bank updateBank(Long id, String name, int transferTotal) {
+    public Optional<Bank> updateBank(Long id, String name, int transferTotal) {
         Optional<Bank> optionalBank = bankRepository.findById(id);
         if (optionalBank.isPresent()) {
             Bank bank = optionalBank.get();
             bank.setName(name);
             bank.setTransfersTotal(transferTotal);
-            return bankRepository.save(bank);
+            return Optional.of(bankRepository.save(bank));
         }
-        return null;
+        return Optional.empty();
     }
 
-    public Bank deleteBank(Long id) {
+    public Optional<Bank> deleteBank(Long id) {
         Optional<Bank> optionalBank = bankRepository.findById(id);
         if (optionalBank.isPresent()) {
             bankRepository.deleteById(id);
-            return optionalBank.get();
+            return optionalBank;
         }
-        return null;
+        return Optional.empty();
     }
 }
