@@ -32,9 +32,12 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Account> deleteAccount(@PathVariable Long id) {
-        return accountService.deleteAccount(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+        boolean deleted = accountService.deleteAccount(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

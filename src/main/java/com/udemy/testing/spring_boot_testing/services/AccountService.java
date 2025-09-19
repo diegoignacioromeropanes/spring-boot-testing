@@ -34,13 +34,13 @@ public class AccountService {
         return Optional.empty();
     }
 
-    public Optional<Account> deleteAccount(Long id) {
+    public boolean deleteAccount(Long id) {
         Optional<Account> optionalAccount = accountRepository.findById(id);
         if (optionalAccount.isPresent()) {
             accountRepository.deleteById(id);
-            return optionalAccount;
+            return true;
         }
-        return Optional.empty();
+        return false;
     }
 
     // Additional method to transfer money between accounts

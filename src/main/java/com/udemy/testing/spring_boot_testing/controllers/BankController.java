@@ -32,9 +32,12 @@ public class BankController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Bank> deleteBank(@PathVariable Long id) {
-        return bankService.deleteBank(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteBank(@PathVariable Long id) {
+        boolean deleted = bankService.deleteBank(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

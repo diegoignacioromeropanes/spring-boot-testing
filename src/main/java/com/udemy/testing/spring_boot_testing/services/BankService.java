@@ -31,12 +31,12 @@ public class BankService {
         return Optional.empty();
     }
 
-    public Optional<Bank> deleteBank(Long id) {
+    public boolean deleteBank(Long id) {
         Optional<Bank> optionalBank = bankRepository.findById(id);
         if (optionalBank.isPresent()) {
             bankRepository.deleteById(id);
-            return optionalBank;
+            return true;
         }
-        return Optional.empty();
+        return false;
     }
 }
