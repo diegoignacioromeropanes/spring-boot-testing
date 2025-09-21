@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 
@@ -15,7 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AccountControllerTests {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class AccountControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -24,46 +26,48 @@ public class AccountControllerTests {
 
     @Test
     void testCreateAndGetAccount() throws Exception {
-        Account account = new Account(1L, "John Doe", new BigDecimal("100.00"));
+        Account account = new Account("John Doe", new BigDecimal("100.00"));
         mockMvc.perform(post("/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(account)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.person").value("John Doe"));
 
-        mockMvc.perform(get("/accounts/1"))
+        mockMvc.perform(get("/accounts/4"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(100.00));
     }
 
     @Test
     void testUpdateAccount() throws Exception {
-        Account account = new Account(2L, "Jane Doe", new BigDecimal("200.00"));
-        mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(account)))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/accounts/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.person").value("Charlie"))
+                .andExpect(jsonPath("$.balance").value(250.00));
 
-        Account updated = new Account(2L, "Jane Smith", new BigDecimal("300.00"));
-        mockMvc.perform(put("/accounts/2")
+        Account updated = new Account("Charlie Sheen", new BigDecimal("300.00"));
+        mockMvc.perform(put("/accounts/3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Jane Smith"))
+                .andExpect(jsonPath("$.person").value("Charlie Sheen"))
+                .andExpect(jsonPath("$.balance").value(300.00));
+
+        mockMvc.perform(get("/accounts/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.person").value("Charlie Sheen"))
                 .andExpect(jsonPath("$.balance").value(300.00));
     }
 
     @Test
     void testDeleteAccount() throws Exception {
-        Account account = new Account(3L, "Mark Doe", new BigDecimal("400.00"));
-        mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(account)))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/accounts/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.person").value("Charlie"))
+                .andExpect(jsonPath("$.balance").value(250.00));
 
         mockMvc.perform(delete("/accounts/3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Mark Doe"));
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/accounts/3"))
                 .andExpect(status().isNotFound());
