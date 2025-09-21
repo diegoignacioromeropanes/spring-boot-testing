@@ -48,6 +48,9 @@ class AccountServiceIntegrationTest {
 
     @Test
     void testDeleteAccount() {
+        Optional<Account> accountOpt = accountService.getAccount(1L);
+        assertTrue(accountOpt.isPresent());
+        assertEquals("Alice", accountOpt.get().getPerson());
         assertTrue(accountService.deleteAccount(1L));
         assertTrue(accountService.getAccount(1L).isEmpty());
     }
