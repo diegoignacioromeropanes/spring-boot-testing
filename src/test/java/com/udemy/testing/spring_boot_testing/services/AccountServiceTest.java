@@ -29,12 +29,13 @@ class AccountServiceTest {
 
     @Test
     void testCreateAccount() {
-        Account account = new Account(1L, "Alice", new BigDecimal("100"));
+        Account account = new Account("Alice", new BigDecimal("100"));
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
-        Account result = accountService.createAccount(1L, "Alice", new BigDecimal("100"));
+        Optional<Account> resultOpt = accountService.createAccount("Alice", new BigDecimal("100"));
 
-        assertNotNull(result);
+        assertTrue(resultOpt.isPresent());
+        Account result = resultOpt.get();
         assertEquals("Alice", result.getPerson());
         assertEquals(new BigDecimal("100"), result.getBalance());
         verify(accountRepository).save(any(Account.class));
@@ -42,33 +43,32 @@ class AccountServiceTest {
 
     @Test
     void testGetAccountFound() {
-        Account account = new Account(1L, "Alice", new BigDecimal("100"));
+        Account account = new Account("Alice", new BigDecimal("100"));
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-        Account result = accountService.getAccount(1L);
+        Optional<Account> resultOpt = accountService.getAccount(1L);
 
-        assertNotNull(result);
-        assertEquals("Alice", result.getPerson());
+        assertTrue(resultOpt.isPresent());
+        assertEquals("Alice", resultOpt.get().getPerson());
     }
 
     @Test
     void testGetAccountNotFound() {
         when(accountRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Account result = accountService.getAccount(1L);
-
-        assertNull(result);
+        Optional<Account> resultOpt = accountService.getAccount(1L);
+        assertTrue(resultOpt.isEmpty());
     }
 
     @Test
     void testUpdateAccountFound() {
-        Account account = new Account(1L, "Alice", new BigDecimal("100"));
+        Account account = new Account("Alice", new BigDecimal("100"));
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
-        Account result = accountService.updateAccount(1L, "Alice Updated", new BigDecimal("200"));
+        Optional<Account> resultOpt = accountService.updateAccount(1L, "Alice Updated", new BigDecimal("200"));
 
-        assertNotNull(result);
+        assertTrue(resultOpt.isPresent());
+        Account result = resultOpt.get();
         assertEquals("Alice Updated", result.getPerson());
         assertEquals(new BigDecimal("200"), result.getBalance());
         verify(accountRepository).save(account);
@@ -77,40 +77,33 @@ class AccountServiceTest {
     @Test
     void testUpdateAccountNotFound() {
         when(accountRepository.findById(1L)).thenReturn(Optional.empty());
+        Optional<Account> resultOpt = accountService.updateAccount(1L, "Alice Updated", new BigDecimal("200"));
 
-        Account result = accountService.updateAccount(1L, "Alice Updated", new BigDecimal("200"));
-
-        assertNull(result);
+        assertTrue(resultOpt.isEmpty());
         verify(accountRepository, never()).save(any(Account.class));
     }
 
     @Test
     void testDeleteAccountFound() {
-        Account account = new Account(1L, "Alice", new BigDecimal("100"));
+        Account account = new Account("Alice", new BigDecimal("100"));
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-        Account result = accountService.deleteAccount(1L);
-
-        assertNotNull(result);
-        assertEquals("Alice", result.getPerson());
-        verify(accountRepository).deleteById(1L);
+        assertTrue(accountService.deleteAccount(1L)); // deleteAccount returns true when the account exists
+        verify(accountRepository).deleteById(1L);   // Verify that deleteById was called with the correct ID
     }
 
     @Test
     void testDeleteAccountNotFound() {
         when(accountRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Account result = accountService.deleteAccount(1L);
-
-        assertNull(result);
-        verify(accountRepository, never()).deleteById(anyLong());
+        assertFalse(accountService.deleteAccount(1L)); // Return false
+        verify(accountRepository, never()).deleteById(anyLong()); // deleteById was never called
     }
 
     @Test
     void testTransferSuccess() {
-        Account from = new Account(1L, "Alice", new BigDecimal("100"));
-        Account to = new Account(2L, "Bob", new BigDecimal("200"));
-
+        Account from = new Account("Alice", new BigDecimal("100"));
+        Account to = new Account("Bob", new BigDecimal("200"));
         when(accountRepository.findById(1L)).thenReturn(Optional.of(from));
         when(accountRepository.findById(2L)).thenReturn(Optional.of(to));
 
@@ -123,9 +116,8 @@ class AccountServiceTest {
 
     @Test
     void testTransferFailsWhenInsufficientFunds() {
-        Account from = new Account(1L, "Alice", new BigDecimal("10"));
-        Account to = new Account(2L, "Bob", new BigDecimal("200"));
-
+        Account from = new Account("Alice", new BigDecimal("10"));
+        Account to = new Account("Bob", new BigDecimal("200"));
         when(accountRepository.findById(1L)).thenReturn(Optional.of(from));
         when(accountRepository.findById(2L)).thenReturn(Optional.of(to));
 
