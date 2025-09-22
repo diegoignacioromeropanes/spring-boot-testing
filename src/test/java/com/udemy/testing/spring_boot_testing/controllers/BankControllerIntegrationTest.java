@@ -78,8 +78,10 @@ public class BankControllerIntegrationTest {
                 null,
                 Void.class);
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+        assertFalse(deleteResponse.hasBody());
 
         ResponseEntity<Bank> verifyResponse = restTemplate.getForEntity("/banks/2", Bank.class);
         assertEquals(HttpStatus.NOT_FOUND, verifyResponse.getStatusCode());
+        assertFalse(verifyResponse.hasBody());
     }
 }

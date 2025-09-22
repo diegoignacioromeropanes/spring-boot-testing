@@ -79,8 +79,10 @@ public class AccountControllerIntegrationTest {
                 null,
                 Void.class);
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+        assertFalse(deleteResponse.hasBody());
 
         ResponseEntity<Account> verifyResponse = restTemplate.getForEntity("/accounts/3", Account.class);
         assertEquals(HttpStatus.NOT_FOUND, verifyResponse.getStatusCode());
+        assertFalse(verifyResponse.hasBody());
     }
 }
