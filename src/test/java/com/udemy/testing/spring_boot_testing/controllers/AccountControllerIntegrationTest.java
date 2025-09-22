@@ -1,76 +1,86 @@
 package com.udemy.testing.spring_boot_testing.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.udemy.testing.spring_boot_testing.models.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AccountControllerIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    TestRestTemplate restTemplate;
 
     @Test
-    void testCreateAndGetAccount() throws Exception {
+    void testCreateAndGetAccount() {
         Account account = new Account("John Doe", new BigDecimal("100.00"));
-        mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(account)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("John Doe"));
+        ResponseEntity<Account> createResponse = restTemplate.postForEntity("/accounts", account, Account.class);
+        assertEquals(HttpStatus.OK, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+        assertEquals("John Doe", createResponse.getBody().getPerson());
+        assertEquals("100.00", createResponse.getBody().getBalance().toString());
 
-        mockMvc.perform(get("/accounts/4"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(100.00));
+        ResponseEntity<Account> getResponse = restTemplate.getForEntity("/accounts/4", Account.class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        assertNotNull(getResponse.getBody());
+        assertEquals("John Doe", getResponse.getBody().getPerson());
+        assertEquals(0, new BigDecimal("100.00").compareTo(getResponse.getBody().getBalance()));
     }
 
     @Test
-    void testUpdateAccount() throws Exception {
-        mockMvc.perform(get("/accounts/3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Charlie"))
-                .andExpect(jsonPath("$.balance").value(250.00));
+    void testUpdateAccount() {
+        ResponseEntity<Account> getResponse = restTemplate.getForEntity("/accounts/3", Account.class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        assertNotNull(getResponse.getBody());
+        assertEquals("Charlie", getResponse.getBody().getPerson());
+        assertEquals(0, new BigDecimal("250.00").compareTo(getResponse.getBody().getBalance()));
 
-        Account updated = new Account("Charlie Sheen", new BigDecimal("300.00"));
-        mockMvc.perform(put("/accounts/3")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Charlie Sheen"))
-                .andExpect(jsonPath("$.balance").value(300.00));
+        Account account = getResponse.getBody();
+        account.setPerson("Charlie Sheen");
+        account.setBalance(new BigDecimal("300.00"));
 
-        mockMvc.perform(get("/accounts/3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Charlie Sheen"))
-                .andExpect(jsonPath("$.balance").value(300.00));
+        ResponseEntity<Account> updateResponse = restTemplate.exchange(
+                "/accounts/3",
+                HttpMethod.PUT,
+                new HttpEntity<>(account),
+                Account.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        assertNotNull(updateResponse.getBody());
+        assertEquals("Charlie Sheen", updateResponse.getBody().getPerson());
+        assertEquals(0, new BigDecimal("300.00").compareTo(updateResponse.getBody().getBalance()));
+
+        ResponseEntity<Account> verifyResponse = restTemplate.getForEntity("/accounts/3", Account.class);
+        assertEquals(HttpStatus.OK, verifyResponse.getStatusCode());
+        assertNotNull(verifyResponse.getBody());
+        assertEquals("Charlie Sheen", verifyResponse.getBody().getPerson());
+        assertEquals(0, new BigDecimal("300.00").compareTo(verifyResponse.getBody().getBalance()));
     }
 
     @Test
-    void testDeleteAccount() throws Exception {
-        mockMvc.perform(get("/accounts/3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.person").value("Charlie"))
-                .andExpect(jsonPath("$.balance").value(250.00));
+    void testDeleteAccount() {
+        ResponseEntity<Account> getResponse = restTemplate.getForEntity("/accounts/3", Account.class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        assertNotNull(getResponse.getBody());
+        assertEquals("Charlie", getResponse.getBody().getPerson());
+        assertEquals(0, new BigDecimal("250.00").compareTo(getResponse.getBody().getBalance()));
 
-        mockMvc.perform(delete("/accounts/3"))
-                .andExpect(status().isNoContent());
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+                "/accounts/3",
+                HttpMethod.DELETE,
+                null,
+                Void.class);
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
 
-        mockMvc.perform(get("/accounts/3"))
-                .andExpect(status().isNotFound());
+        ResponseEntity<Account> verifyResponse = restTemplate.getForEntity("/accounts/3", Account.class);
+        assertEquals(HttpStatus.NOT_FOUND, verifyResponse.getStatusCode());
     }
 }
-
